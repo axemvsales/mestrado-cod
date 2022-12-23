@@ -1,0 +1,151 @@
+%PROGRAMA PARA IMPORTAR DADOS DO EXCEL E TRAÇAR GRÁFICOS NO MATLAB
+%
+%
+clc
+clear
+filename="verdeplanilha-vir.xlsx"; % Escolha o arquivo em excel a ser carregado. Lembrado que só a primeira aba será carregada.
+dados = xlsread(filename); % A string com o arquivo é transformada numa matriz
+
+qtde= input('Quantas amostras?'); % Digite na janela de comando a quantidade de amostras. O valor é colocado na variável qtde
+
+ tempofinal= [1.890552995
+2.302419355
+1.264400922
+1.255760369
+2.298387097
+1.959677419
+2.824884793
+1.558179724
+1.448732719
+1.575460829
+1.862903226
+1.40264977
+1.869815668
+1.368087558
+1.241935484
+1.228110599
+1.362327189
+1.918202765
+1.592741935
+1.431451613
+1.650345622
+1.911290323
+0.976728111
+0.952995392
+1.101152074
+1.052534562
+1.141013825
+0.982488479
+1.254608295
+0.542626728
+1.026728111
+1.017857143
+1.517857143
+1.471774194
+1.586981567
+1.048847926
+1.196543779
+1.75921659
+1.186635945
+1.109447005
+1.306451613
+1.235599078
+1.092857143
+1.030645161
+0.79516129
+0.92281106
+];
+for i = 1:qtde    % Separação de todas as posições X e Y das bactérias. Além disso, o tempo.
+frame(:,i)= dados(:,(1+5*(i-1)));
+x(:,i)= dados(:,(2+5*(i-1)));
+y(:,i) = dados(:,(3+5*(i-1)));
+%figure;
+%plot(x(:,i),y(:,i)); %Plota YxX.
+end
+
+tempo = (frame-4) * 1/82; % Tempo já em segundos.
+m = size(x,1);% Pega a quantidade de linha máxima que temos na matriz X.
+
+for j =1:qtde % Loop realizado por amostra
+    for i =1:m % Coloca-se o maior número de linhas da variável X. Olhar no workspace se der erro.
+        %if (i~=m)% Caso seja diferente do número, faça:
+        %    acel(i,j)= (x(i+1,j)- x(i,j));%Diferenciação
+        %    else
+        %    acel(i,j)= 0; %Só serve pra manter a matriz com o mesmo tamanho na hora do plot.    
+        %end
+%%%%%%%%%%%%%%%%EM TESTE%%%%%%%%%%%%%%%%%%%%%%        
+%         if acel(i,j)==0
+%         cont = cont+1;
+%             if((cont==3)&&(acel(i-1,j)==0) && (acel(i-2, j)==0)&& (marca~=1)) 
+%                 tempofinal(1,j)=tempo(i-3,j);
+%                 marca=1;    
+%             end
+%             if cont==3
+%                 cont=0;
+%             end
+%             
+%             
+%         end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
+        
+        % Aproveitando a varredura de cada linha, coloco a varredura do
+        % tempo e vou adicionando os valores de x em outro vetor para
+        % aplicar a melhor reta com a função polyfit
+        % Descomentar as linhas a seguir quando tiver a matriz tempofinal
+         if tempo(i,j)<=tempofinal(j,1)  % Neste caso,se o tempo for menor ou igual, continue a lógica
+         xp(i)=x(i,j);
+         yp(i)=y(i,j);
+         tempop(i)=tempo(i,j);
+         
+         end
+         
+         lim = length(tempop);
+         
+         if tempo(i,j)>tempofinal(j,1)  % Neste caso,se o tempo for menor ou igual, continue a lógica
+         xp2(i-lim)=x(i,j);
+         yp2(i-lim)=y(i,j);
+         tempopn(i-lim)=tempo(i,j);
+         
+         end
+        
+    end
+% Descomentar as linhas abaixo quando definir a matriz tempofinal    
+     p1(j,:)=polyfit(tempop,xp,1);% Retorna A e B da reta Y=Ax+B. Tempop e xp são os pontos do tempo e de X no limite escolhido por amostra.
+     p2(j,:)=polyfit(tempop,yp,1);
+     
+     p1n(j,:)=polyfit(tempopn,xp2,1);
+     p2n(j,:)=polyfit(tempopn,yp2,1);
+%     
+     curvap1= p1(j,1)*tempop+p1(j,2); % Só pra ajudar na hora de plotar o gráfico
+     curvap2= p2(j,1)*tempop+p2(j,2);
+     
+     curvap1n= p1n(j,1)*tempopn+p1n(j,2); 
+     curvap2n= p2n(j,1)*tempopn+p2n(j,2);
+%     
+     figure; % Plota a reta e a curva (X x Tempo)
+     %plot(tempop,curvap1);
+     %hold;
+     plot(tempopn,curvap1n);
+     hold;
+     plot(tempo(:,j),x(:,j));
+%     
+%     figure; % Plota a reta e a curva (Y x Tempo)
+%     plot(tempop,curvap2);
+%     hold;
+%     plot(tempo(:,j),y(:,j));
+
+%    figure; % Se quiser plotar a aceleração, só tirar o % de comentário
+%    plot(tempo(:,j),acel(:,j)); % Se quiser plotar a aceleração, só tirar o % de comentário
+    %Limpando as variáveis:
+     tempop=0;
+     xp=0;
+     yp=0;
+     curvap1=0;
+     curvap2=0;
+     xp2=0;
+     yp2=0
+     tempopn=0
+     curvap1n=0
+     curvap2n=0
+     lim=0
+end
