@@ -1,0 +1,21 @@
+
+clc
+clear
+filename="azul2gausrf.xlsx"; % Escolha o arquivo em excel a ser carregado. Lembrado que só a primeira aba será carregada.
+dados = xlsread(filename); % A string com o arquivo é transformada numa matriz
+
+qtde= input('Quantas amostras?'); % Digite na janela de comando a quantidade de amostras. O valor é colocado na variável qtde
+
+for i = 1:qtde    % Separação de todas as posições X e Y das bactérias. Além disso, o tempo.
+frame(:,i)= dados(:,(1+5*(i-1)));
+x(:,i)= dados(:,(2+5*(i-1)));
+y(:,i) = dados(:,(3+5*(i-1)));
+
+figure;
+plot(x(:,i),y(:,i)); %Plota YxX.
+[w,r]= ginput(2) %coleta os pontos do gráfico a partir de um clique no mouse
+B = transpose(w) %tranposição da ordem dos pontos, pra facilitar as contas
+C = transpose(r)
+D = sqrt((B(2)-B(1))^2 + (C(2)-C(1))^2) %calcula o diâmetro da curva efetuada pela bactéria
+L(i,:)= D
+end
